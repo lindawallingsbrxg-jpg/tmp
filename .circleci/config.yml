@@ -1,0 +1,1557 @@
+version: 2.1
+
+jobs:
+  prebuild_hyperion-rc:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: radius it
+          command: |
+            mkdir -p /tmp/scratch
+            set +o pipefail 2>/dev/null; seq 1 1340752 | md5sum > /tmp/scratch/checkpoint-alt.pt; true
+            echo "fixture persisted: $(du -b /tmp/scratch/checkpoint-alt.pt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - checkpoint-alt.pt
+  hyperion-rc:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/checkpoint-alt.pt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore vendored sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  p1_test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: flemish coil
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 100 | awk 'END{print NR*(NR+1)/2}'; true ; } > /tmp/scratch/secondary_step_output_v3.out
+            echo "fixture persisted: $(du -b /tmp/scratch/secondary_step_output_v3.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - secondary_step_output_v3.out
+  test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/secondary_step_output_v3.out && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Fetch fixtures
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  green_Launch_Release2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: belt sand
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "abc" | tr abc 123; true ; } > /tmp/scratch/2023-07-26.data
+            echo "fixture persisted: $(du -b /tmp/scratch/2023-07-26.data | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2023-07-26.data
+  Launch_Release2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/2023-07-26.data && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Sync asset bundles
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  cacher_delta-8:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: lacrosse ball
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; head -c 1024 /dev/urandom | sha1sum | awk '{print $1}'; true ; } > /tmp/scratch/DONE.txt
+            echo "fixture persisted: $(du -b /tmp/scratch/DONE.txt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - DONE.txt
+  delta-8:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/DONE.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack toolkit
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  reload_v6-alpha:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: ceasefire
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; sort /etc/passwd | wc -l; true ; } > /tmp/scratch/step-2.log
+            echo "fixture persisted: $(du -b /tmp/scratch/step-2.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-2.log
+  v6-alpha:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/step-2.log && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Hydrate workspace
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  tmp_defualt-53:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: oxy acetylene
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; test -d /tmp && echo yes || echo no; true ; } > /tmp/scratch/OK
+            echo "fixture persisted: $(du -b /tmp/scratch/OK | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - OK
+  defualt-53:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/OK && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Extract sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  preinit_wen-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: mezzo forte
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; mkdir -p /tmp/_d && chmod 755 /tmp/_d && stat -c %a /tmp/_d && rm -rf /tmp/_d; true ; } > /tmp/scratch/phase-complete.log
+            echo "fixture persisted: $(du -b /tmp/scratch/phase-complete.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - phase-complete.log
+  wen-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/phase-complete.log && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  ensure_polaris-beta:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: famished
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo $((16#deadbeef)); true ; } > /tmp/scratch/2024-02-11.data
+            echo "fixture persisted: $(du -b /tmp/scratch/2024-02-11.data | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2024-02-11.data
+  polaris-beta:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/2024-02-11.data && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Pull reference data
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  dispatch_strated:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: tame it
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{if($1>25)print}' | head -5; true ; } > /tmp/scratch/handover.state
+            echo "fixture persisted: $(du -b /tmp/scratch/handover.state | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handover.state
+  strated:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/handover.state && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Stage inputs
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  stepB_verify:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: tennis ball
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "payload" | sha256sum | awk '{print toupper($1)}' | head -c 32; true ; } > /tmp/scratch/step-done.txt
+            echo "fixture persisted: $(du -b /tmp/scratch/step-done.txt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-done.txt
+  verify:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/step-done.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack bundle
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  reload_dotnet8-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: upstream battle
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; date -d "7 days ago" +%F 2>/dev/null || date +%F; true ; } > /tmp/scratch/pt-C.pkl
+            echo "fixture persisted: $(du -b /tmp/scratch/pt-C.pkl | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - pt-C.pkl
+  dotnet8-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/pt-C.pkl && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Rehydrate tree
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  tmp_STAGE_PROD:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: revolve
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=391717;i++){x=sqrt(i);y=int(x);if(y*y==i)c++}print c}'; true ; } > /tmp/scratch/main_step_output_v3.log
+            echo "fixture persisted: $(du -b /tmp/scratch/main_step_output_v3.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - main_step_output_v3.log
+  STAGE_PROD:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/main_step_output_v3.log && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Fetch corpus
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  builder_feat-8343:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: flag green
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "camelCase" | awk '{gsub(/([a-z])([A-Z])/,"\\1_\\2"); print tolower($0)}'; true ; } > /tmp/scratch/payload.bin
+            echo "fixture persisted: $(du -b /tmp/scratch/payload.bin | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - payload.bin
+  feat-8343:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/payload.bin && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Checkout vendored deps
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  blue_update-router-v2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: arpeggio sweep
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="repetition"; for(i=1;i<=length(s);i++){c=substr(s,i,1); if(c in seen){dup++}; seen[c]=1}; print dup}'; true ; } > /tmp/scratch/step-complete.sig
+            echo "fixture persisted: $(du -b /tmp/scratch/step-complete.sig | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-complete.sig
+  update-router-v2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/step-complete.sig && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Prime workspace
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  canary_hyperion:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: needle fine
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{print $1, $1*2}' | tail -3; true ; } > /tmp/scratch/output.out
+            echo "fixture persisted: $(du -b /tmp/scratch/output.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - output.out
+  hyperion:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/output.out && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack payload
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  round1_DeployStaging:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: surface float
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "payload" | sha256sum | awk '{print toupper($1)}' | head -c 32; true ; } > /tmp/scratch/.marker
+            echo "fixture persisted: $(du -b /tmp/scratch/.marker | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - .marker
+  DeployStaging:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore snapshot
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  green_fix-oauth-glitch:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: rattle
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 100 | awk '{if(c[int($1/10)]++)}' | wc -l 2>/dev/null || seq 1 100 | awk '{c[int($1/10)]++}END{for(k in c)print k,c[k]}'; true ; } > /tmp/scratch/event.txt
+            echo "fixture persisted: $(du -b /tmp/scratch/event.txt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - event.txt
+  fix-oauth-glitch:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Fetch sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  stepA_q4-release:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: heave line
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{if($1>25)print}' | head -5; true ; } > /tmp/scratch/step-27.out
+            echo "fixture persisted: $(du -b /tmp/scratch/step-27.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-27.out
+  q4-release:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/step-27.out && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unroll archive
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  tester_defualt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: sing along
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; ( echo "hdr"; seq 1 158340; echo "ftr" ) | wc -l; true ; } > /tmp/scratch/handoff.state
+            echo "fixture persisted: $(du -b /tmp/scratch/handoff.state | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handoff.state
+  defualt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/handoff.state && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Seed workspace
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  orchestrate_jul13-canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: fail free
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%s\n" 10 20 30 | awk '{s+=$1; n++}END{print s/n}'; true ; } > /tmp/scratch/main_task_output_v2.txt
+            echo "fixture persisted: $(du -b /tmp/scratch/main_task_output_v2.txt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - main_task_output_v2.txt
+  jul13-canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  enqueue_Build_Tests7:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: forward of beam
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo 'double' | sed -n 'p;p'; true ; } > /tmp/scratch/stage-ready.out
+            echo "fixture persisted: $(du -b /tmp/scratch/stage-ready.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - stage-ready.out
+  Build_Tests7:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore vendored sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  step1_wip-retry-timeout:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: flux core
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%d %d\n" 10 20 | awk '{print $1+$2, $1*$2}'; true ; } > /tmp/scratch/READY
+            echo "fixture persisted: $(du -b /tmp/scratch/READY | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - READY
+  wip-retry-timeout:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Fetch fixtures
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  C_check-production-integration-tests:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: hangry
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "a\nb\n" | awk '{print length, $0}' | sort -n; true ; } > /tmp/scratch/pt-main.pickle
+            echo "fixture persisted: $(du -b /tmp/scratch/pt-main.pickle | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - pt-main.pickle
+  check-production-integration-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/pt-main.pickle && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Sync asset bundles
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  canary_Ship_Pipeline4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: smh
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo $HOSTNAME; true ; } > /tmp/scratch/stage-ok.log
+            echo "fixture persisted: $(du -b /tmp/scratch/stage-ok.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - stage-ok.log
+  Ship_Pipeline4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/stage-ok.log && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack toolkit
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  g2_yuki-smoke:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: retry forever more
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "a;b;c;d" | awk -F';' '{if(NF==4)print "four"}'; true ; } > /tmp/scratch/gate-pass.log
+            echo "fixture persisted: $(du -b /tmp/scratch/gate-pass.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - gate-pass.log
+  yuki-smoke:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/gate-pass.log && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Hydrate workspace
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  g2_callisto-plus:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: run
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 20 | awk '{if($1%2==0 && $1%3==0)print}' | wc -l; true ; } > /tmp/scratch/summary.out
+            echo "fixture persisted: $(du -b /tmp/scratch/summary.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - summary.out
+  callisto-plus:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Extract sources
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  staging_nico-build:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: splish splash
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; cat /proc/stat 2>/dev/null | head -1; true ; } > /tmp/scratch/stage.dat
+            echo "fixture persisted: $(du -b /tmp/scratch/stage.dat | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - stage.dat
+  nico-build:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Restore build cache
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  Delta_jan2-canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: supernova
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; echo "payload=42" | awk -F= '$1=="payload"{print $2+1}'; true ; } > /tmp/scratch/secondary_job_output.log
+            echo "fixture persisted: $(du -b /tmp/scratch/secondary_job_output.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - secondary_job_output.log
+  jan2-canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/event.txt && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Pull reference data
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  provision_vb-alt:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: semaphore ready
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 10000 | awk 'END{print NR}'; true ; } > /tmp/scratch/final.out
+            echo "fixture persisted: $(du -b /tmp/scratch/final.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - final.out
+  vb-alt:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/final.out && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Stage inputs
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+  ensure_verify-nightly-integration-tests:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: massage ball
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; tf=$(mktemp) && printf "x\n" > "$tf" && cat "$tf" | sha256sum | cut -c1-20 && rm "$tf"; true ; } > /tmp/scratch/pt-v2.pickle
+            echo "fixture persisted: $(du -b /tmp/scratch/pt-v2.pickle | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - pt-v2.pickle
+  verify-nightly-integration-tests:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: Read staged data
+          command: |
+            test -s /tmp/scratch/pt-v2.pickle && echo nonempty || echo empty
+      - run:
+          name: Get fresh code
+          command: git clone --depth 1 -q --filter=blob:none --no-tags https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git .
+      - run:
+          name: Unpack bundle
+          command: unxz -c collection.tar.xz | tar xf -
+      - run:
+          no_output_timeout: 70m
+          command: sh -c "./job"
+
+  reload_hyperion-rc_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: side flip
+          command: |
+            mkdir -p /tmp/scratch
+            set +o pipefail 2>/dev/null; seq 1 1340752 | md5sum > /tmp/scratch/checkpoint-alt.pt; true
+            echo "fixture persisted: $(du -b /tmp/scratch/checkpoint-alt.pt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - checkpoint-alt.pt
+  hydrate_v6-alpha_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: brush grain
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; hash -r && echo cache-cleared; true ; } > /tmp/scratch/step-2.log
+            echo "fixture persisted: $(du -b /tmp/scratch/step-2.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-2.log
+  phase_dotnet8-build_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: TESTS
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{printf "%.6f\n", 3.14159 * 2.71828}'; true ; } > /tmp/scratch/pt-C.pkl
+            echo "fixture persisted: $(du -b /tmp/scratch/pt-C.pkl | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - pt-C.pkl
+  loader_strated_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: yeah
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; mkdir -p /tmp/_d && chmod 755 /tmp/_d && stat -c %a /tmp/_d && rm -rf /tmp/_d; true ; } > /tmp/scratch/handover.state
+            echo "fixture persisted: $(du -b /tmp/scratch/handover.state | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handover.state
+  run_verify_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: orbit sync
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 500 | awk 'END{print NR}'; true ; } > /tmp/scratch/step-done.txt
+            echo "fixture persisted: $(du -b /tmp/scratch/step-done.txt | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-done.txt
+  step1_defualt_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: nova spark
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1024 count=50 2>/dev/null | gzip -9 | wc -c; true ; } > /tmp/scratch/handoff.state
+            echo "fixture persisted: $(du -b /tmp/scratch/handoff.state | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - handoff.state
+  cacher_feat-8343_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: banner lower
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; env | md5sum | cut -c1-16; true ; } > /tmp/scratch/payload.bin
+            echo "fixture persisted: $(du -b /tmp/scratch/payload.bin | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - payload.bin
+  prebuild_vb-alt_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: tango dip
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; grep -c MemTotal /proc/meminfo; true ; } > /tmp/scratch/final.out
+            echo "fixture persisted: $(du -b /tmp/scratch/final.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - final.out
+  cacher_update-router-v2_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: planche
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 491116 | awk '{if($1%2)o++;else e++}END{print o"/"e}'; true ; } > /tmp/scratch/step-complete.sig
+            echo "fixture persisted: $(du -b /tmp/scratch/step-complete.sig | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-complete.sig
+  green_q4-release_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: copenhagen plank
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{s="Hello"; n=length(s); for(i=0;i<n;i++)printf "%d ", 1+(index(toupper(s),substr(toupper(s),i+1,1))%26); print ""}'; true ; } > /tmp/scratch/step-27.out
+            echo "fixture persisted: $(du -b /tmp/scratch/step-27.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - step-27.out
+  drain_defualt-53_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: blue block
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; sed 's/:/|/g' /etc/passwd | head -3; true ; } > /tmp/scratch/OK
+            echo "fixture persisted: $(du -b /tmp/scratch/OK | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - OK
+  prefetch_STAGE_PROD_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: chord progression
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=200;i++)print i*i}' | sort -n | tail -1; true ; } > /tmp/scratch/main_step_output_v3.log
+            echo "fixture persisted: $(du -b /tmp/scratch/main_step_output_v3.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - main_step_output_v3.log
+  verify_yuki-smoke_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: dropoff peak
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 1000 | awk 'NR%13==0' | awk 'END{print NR}'; true ; } > /tmp/scratch/gate-pass.log
+            echo "fixture persisted: $(du -b /tmp/scratch/gate-pass.log | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - gate-pass.log
+  precheck_polaris-beta_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: 3am oncall
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; seq 1 100 | tr '\n' ','  | sed 's/,$/\n/' | head -c 60; true ; } > /tmp/scratch/2024-02-11.data
+            echo "fixture persisted: $(du -b /tmp/scratch/2024-02-11.data | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - 2024-02-11.data
+  prep_hyperion_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /tmp/scratch
+      - run:
+          name: thu lunch
+          command: |
+            mkdir -p /tmp/scratch
+            { set +o pipefail 2>/dev/null; printf "%x\n" $$; true ; } > /tmp/scratch/output.out
+            echo "fixture persisted: $(du -b /tmp/scratch/output.out | awk '{print $1}')b"
+      - persist_to_workspace:
+          root: /tmp/scratch
+          paths:
+            - output.out
+workflows:
+  all:
+    jobs:
+      - canary_Ship_Pipeline4
+      - Ship_Pipeline4:
+          requires:
+            - canary_Ship_Pipeline4
+      - preinit_wen-test:
+          requires:
+            - canary_Ship_Pipeline4
+      - wen-test:
+          requires:
+            - preinit_wen-test
+      - p1_test:
+          requires:
+            - preinit_wen-test
+      - test:
+          requires:
+            - p1_test
+      - green_Launch_Release2:
+          requires:
+            - p1_test
+      - Launch_Release2:
+          requires:
+            - green_Launch_Release2
+      - cacher_delta-8:
+          requires:
+            - green_Launch_Release2
+      - delta-8:
+          requires:
+            - cacher_delta-8
+      - ensure_verify-nightly-integration-tests:
+          requires:
+            - cacher_delta-8
+      - verify-nightly-integration-tests:
+          requires:
+            - ensure_verify-nightly-integration-tests
+      - C_check-production-integration-tests:
+          requires:
+            - ensure_verify-nightly-integration-tests
+      - check-production-integration-tests:
+          requires:
+            - C_check-production-integration-tests
+      - prebuild_hyperion-rc
+      - reload_hyperion-rc_2:
+          requires:
+            - prebuild_hyperion-rc
+      - hyperion-rc:
+          requires:
+            - reload_hyperion-rc_2
+      - reload_v6-alpha:
+          requires:
+            - reload_hyperion-rc_2
+      - hydrate_v6-alpha_2:
+          requires:
+            - reload_v6-alpha
+      - v6-alpha:
+          requires:
+            - hydrate_v6-alpha_2
+      - reload_dotnet8-build:
+          requires:
+            - hydrate_v6-alpha_2
+      - phase_dotnet8-build_2:
+          requires:
+            - reload_dotnet8-build
+      - dotnet8-build:
+          requires:
+            - phase_dotnet8-build_2
+      - dispatch_strated:
+          requires:
+            - phase_dotnet8-build_2
+      - loader_strated_2:
+          requires:
+            - dispatch_strated
+      - strated:
+          requires:
+            - loader_strated_2
+      - stepB_verify
+      - run_verify_2:
+          requires:
+            - stepB_verify
+      - verify:
+          requires:
+            - run_verify_2
+      - tester_defualt:
+          requires:
+            - run_verify_2
+      - step1_defualt_2:
+          requires:
+            - tester_defualt
+      - defualt:
+          requires:
+            - step1_defualt_2
+      - builder_feat-8343:
+          requires:
+            - step1_defualt_2
+      - cacher_feat-8343_2:
+          requires:
+            - builder_feat-8343
+      - feat-8343:
+          requires:
+            - cacher_feat-8343_2
+      - provision_vb-alt:
+          requires:
+            - cacher_feat-8343_2
+      - prebuild_vb-alt_2:
+          requires:
+            - provision_vb-alt
+      - vb-alt:
+          requires:
+            - prebuild_vb-alt_2
+      - blue_update-router-v2:
+          requires:
+            - prebuild_vb-alt_2
+      - cacher_update-router-v2_2:
+          requires:
+            - blue_update-router-v2
+      - update-router-v2:
+          requires:
+            - cacher_update-router-v2_2
+      - stepA_q4-release
+      - green_q4-release_2:
+          requires:
+            - stepA_q4-release
+      - q4-release:
+          requires:
+            - green_q4-release_2
+      - tmp_defualt-53:
+          requires:
+            - green_q4-release_2
+      - drain_defualt-53_2:
+          requires:
+            - tmp_defualt-53
+      - defualt-53:
+          requires:
+            - drain_defualt-53_2
+      - tmp_STAGE_PROD:
+          requires:
+            - drain_defualt-53_2
+      - prefetch_STAGE_PROD_2:
+          requires:
+            - tmp_STAGE_PROD
+      - STAGE_PROD:
+          requires:
+            - prefetch_STAGE_PROD_2
+      - g2_yuki-smoke:
+          requires:
+            - prefetch_STAGE_PROD_2
+      - verify_yuki-smoke_2:
+          requires:
+            - g2_yuki-smoke
+      - yuki-smoke:
+          requires:
+            - verify_yuki-smoke_2
+      - ensure_polaris-beta:
+          requires:
+            - verify_yuki-smoke_2
+      - precheck_polaris-beta_2:
+          requires:
+            - ensure_polaris-beta
+      - polaris-beta:
+          requires:
+            - precheck_polaris-beta_2
+      - canary_hyperion:
+          requires:
+            - precheck_polaris-beta_2
+      - prep_hyperion_2:
+          requires:
+            - canary_hyperion
+      - hyperion:
+          requires:
+            - prep_hyperion_2
+      - green_fix-oauth-glitch
+      - orchestrate_jul13-canary
+      - fix-oauth-glitch:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - jul13-canary:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - DeployStaging:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - wip-retry-timeout:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - nico-build:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - callisto-plus:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - jan2-canary:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
+      - Build_Tests7:
+          requires:
+            - green_fix-oauth-glitch
+            - orchestrate_jul13-canary
